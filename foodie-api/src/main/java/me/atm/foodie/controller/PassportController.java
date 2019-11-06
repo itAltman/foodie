@@ -1,5 +1,7 @@
 package me.atm.foodie.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import me.atm.common.utils.JsonResult;
 import me.atm.pojo.bo.UserBO;
 import me.atm.service.UsersService;
@@ -14,6 +16,7 @@ import javax.annotation.Resource;
  * @author Altman
  * @date 2019/11/05
  **/
+@Api(value = "注册登录", tags = {"注册登录"})
 @RestController
 @RequestMapping("/passport")
 public class PassportController {
@@ -21,8 +24,9 @@ public class PassportController {
     @Resource
     private UsersService usersService;
 
+    @ApiOperation(value = "检查用户名", notes = "检查用户名是否存在", httpMethod = "GET")
     @GetMapping("/usernameIsExist")
-    public JsonResult hello(@RequestParam String username) {
+    public JsonResult usernameIsExist(@RequestParam String username) {
         // 1. 用户名是否为空
         if (StringUtils.isBlank(username)) {
             return JsonResult.errorMsg("用户名不能为空");
@@ -37,6 +41,7 @@ public class PassportController {
         return JsonResult.ok();
     }
 
+    @ApiOperation(value = "用户注册", notes = "用于网站用户注册", httpMethod = "POST")
     @PostMapping("/register")
     public JsonResult register(@RequestBody UserBO userBO) {
         String username = userBO.getUsername();
