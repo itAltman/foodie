@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 @Service
 public class UsersServiceImpl implements UsersService {
 
-    private static String USER_FACE_URL = "https://b-ssl.duitang.com/uploads/item/201806/07/20180607185957_fjrFt.thumb.200_0.jpeg";
+    private static String USER_FACE_URL = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAIlFXAAAcIhVPdSg994.png";
 
     @Resource
     private Sid sid;
@@ -62,5 +62,14 @@ public class UsersServiceImpl implements UsersService {
         usersMapper.insert(users);
 
         return users;
+    }
+
+    @Override
+    public Users queryUserForLogin(String username, String password) {
+        Example example = new Example(Users.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("username", username);
+        criteria.andEqualTo("password", password);
+        return usersMapper.selectOneByExample(example);
     }
 }

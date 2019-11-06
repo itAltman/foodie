@@ -29,4 +29,15 @@ public interface UsersService {
      * @date 2019-11-05
      */
     Users createUser(UserBO userBO);
+
+    /**
+     * 验证用户信息，登录
+     *
+     * @param username : 用户名
+     * @param password : 密码
+     * @return 用户的信息
+     * @author Altman
+     * @date 2019-11-05
+     */
+    Users queryUserForLogin(String username, String password);
 }
