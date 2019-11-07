@@ -1,7 +1,7 @@
 package me.atm.service.impl;
 import java.util.Date;
 
-import me.atm.common.enums.Sex;
+import me.atm.common.enums.SexEnum;
 import me.atm.common.utils.DateUtils;
 import me.atm.common.utils.MD5Utils;
 import me.atm.mapper.UsersMapper;
@@ -53,7 +53,7 @@ public class UsersServiceImpl implements UsersService {
         // 默认用户头像
         users.setFace(USER_FACE_URL);
         // 默认性别为保密
-        users.setSex(Sex.secret.type);
+        users.setSex(SexEnum.secret.type);
         // 默认生日为 1970-01-01
         users.setBirthday(DateUtils.stringToDate("1970-01-01"));
         users.setCreatedTime(new Date());

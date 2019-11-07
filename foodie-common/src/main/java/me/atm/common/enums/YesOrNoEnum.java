@@ -6,18 +6,15 @@ package me.atm.common.enums;
  * @author Altman
  * @create 2019/11/05
  **/
-public enum Sex {
-    woman(0, "女"),
-
-    man(1, "男"),
-
-    secret(2, "保密");
+public enum YesOrNoEnum {
+    NO(0, "否"),
+    YES(1, "是");
 
     public final Integer type;
 
     public final String value;
 
-    Sex(Integer type, String value) {
+    YesOrNoEnum(Integer type, String value) {
         this.type = type;
         this.value = value;
     }
