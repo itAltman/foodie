@@ -1,13 +1,9 @@
 package me.atm.service.impl;
 
-import me.atm.mapper.ItemsImgMapper;
-import me.atm.mapper.ItemsMapper;
-import me.atm.mapper.ItemsParamMapper;
-import me.atm.mapper.ItemsSpecMapper;
-import me.atm.pojo.Items;
-import me.atm.pojo.ItemsImg;
-import me.atm.pojo.ItemsParam;
-import me.atm.pojo.ItemsSpec;
+import me.atm.common.enums.CommentLevelEnum;
+import me.atm.mapper.*;
+import me.atm.pojo.*;
+import me.atm.pojo.vo.CommentLevelCountsVO;
 import me.atm.service.ItemService;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -32,6 +28,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Resource
     private ItemsParamMapper itemsParamMapper;
+
+    @Resource
+    private ItemsCommentsMapper itemsCommentsMapper;
 
     @Override
     public Items queryItemById(String itemId) {
@@ -61,5 +60,31 @@ public class ItemServiceImpl implements ItemService {
         criteria.andEqualTo("itemId", itemId);
 
         return itemsParamMapper.selectOneByExample(example);
+    }
+
+    @Override
+    public CommentLevelCountsVO queryCommentCounts(String itemId) {
+        Integer goodCounts = getCommentCounts(itemId, CommentLevelEnum.GOOD.type);
+        Integer normalCounts = getCommentCounts(itemId, CommentLevelEnum.NORMAL.type);
+        Integer badCounts = getCommentCounts(itemId, CommentLevelEnum.BAD.type);
+        Integer totalCounts = goodCounts + normalCounts + badCounts;
+
+        CommentLevelCountsVO countsVO = CommentLevelCountsVO.builder()
+                .totalCounts(totalCounts)
+                .goodCounts(goodCounts)
+                .normalCounts(normalCounts)
+                .badCounts(badCounts)
+                .build();
+
+        return countsVO;
+    }
+
+    Integer getCommentCounts(String itemId, Integer level) {
+        ItemsComments condition = new ItemsComments();
+        condition.setItemId(itemId);
+        if (level != null) {
+            condition.setCommentLevel(level);
+        }
+        return itemsCommentsMapper.selectCount(condition);
     }
 }

@@ -7,6 +7,7 @@ import me.atm.common.enums.YesOrNoEnum;
 import me.atm.common.utils.JsonResult;
 import me.atm.pojo.*;
 import me.atm.pojo.vo.CategoryVO;
+import me.atm.pojo.vo.CommentLevelCountsVO;
 import me.atm.pojo.vo.ItemInfoVO;
 import me.atm.pojo.vo.NewItemsVO;
 import me.atm.service.CarouselService;
@@ -54,5 +55,15 @@ public class ItemsController {
                 .itemSpecList(itemsSpecs)
                 .build();
         return JsonResult.ok(itemInfoVO);
+    }
+
+    @ApiOperation(value = "商品评价等级数量", notes = "获取评价的总数、好评、中评、差评", httpMethod = "GET")
+    @GetMapping("/commentLevel/{itemId}")
+    public JsonResult commentLevel(@ApiParam(value = "商品id", required = true) @PathVariable String itemId) {
+        if (StringUtils.isBlank(itemId)) {
+            return JsonResult.errorMsg("商品id不能为空");
+        }
+        CommentLevelCountsVO commentLevelCountsVO = itemService.queryCommentCounts(itemId);
+        return JsonResult.ok(commentLevelCountsVO);
     }
 }

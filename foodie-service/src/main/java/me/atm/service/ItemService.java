@@ -4,6 +4,7 @@ import me.atm.pojo.Items;
 import me.atm.pojo.ItemsImg;
 import me.atm.pojo.ItemsParam;
 import me.atm.pojo.ItemsSpec;
+import me.atm.pojo.vo.CommentLevelCountsVO;
 
 import java.util.List;
 
@@ -43,4 +44,11 @@ public interface ItemService {
      * @return
      */
     public ItemsParam queryItemParam(String itemId);
+
+    /**
+     * 根据商品id查询商品的评价等级数量
+     * @param itemId
+     */
+    public CommentLevelCountsVO queryCommentCounts(String itemId);
+
 }
