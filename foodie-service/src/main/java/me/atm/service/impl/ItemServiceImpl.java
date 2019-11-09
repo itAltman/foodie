@@ -1,15 +1,23 @@
 package me.atm.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import me.atm.common.enums.CommentLevelEnum;
+import me.atm.common.utils.DesensitizationUtil;
+import me.atm.common.utils.PagedGridResult;
 import me.atm.mapper.*;
 import me.atm.pojo.*;
 import me.atm.pojo.vo.CommentLevelCountsVO;
+import me.atm.pojo.vo.ItemCommentVO;
 import me.atm.service.ItemService;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Altman
@@ -77,6 +85,31 @@ public class ItemServiceImpl implements ItemService {
                 .build();
 
         return countsVO;
+    }
+
+    @Override
+    public PagedGridResult queryItemComments(String itemId, Integer commentLevel, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("itemId", itemId);
+        map.put("level", commentLevel);
+        /**
+         * page: 第几页
+         * pageSize: 每页显示条数
+         */
+        PageHelper.startPage(page, pageSize);
+        List<ItemCommentVO> itemCommentVOS = itemsCommentsMapper.queryItemComments(map);
+        itemCommentVOS.forEach(vo -> DesensitizationUtil.commonDisplay(vo.getNickname()));
+        return setterPagedGrid(itemCommentVOS, page);
+    }
+
+    private PagedGridResult setterPagedGrid(List<?> list, Integer page) {
+        PageInfo<?> pageList = new PageInfo<>(list);
+        PagedGridResult grid = new PagedGridResult();
+        grid.setPage(page);
+        grid.setRows(list);
+        grid.setTotal(pageList.getPages());
+        grid.setRecords(pageList.getTotal());
+        return grid;
     }
 
     Integer getCommentCounts(String itemId, Integer level) {

@@ -1,10 +1,12 @@
 package me.atm.service;
 
+import me.atm.common.utils.PagedGridResult;
 import me.atm.pojo.Items;
 import me.atm.pojo.ItemsImg;
 import me.atm.pojo.ItemsParam;
 import me.atm.pojo.ItemsSpec;
 import me.atm.pojo.vo.CommentLevelCountsVO;
+import me.atm.pojo.vo.ItemCommentVO;
 
 import java.util.List;
 
@@ -47,8 +49,15 @@ public interface ItemService {
 
     /**
      * 根据商品id查询商品的评价等级数量
+     *
      * @param itemId
      */
     public CommentLevelCountsVO queryCommentCounts(String itemId);
 
+    /**
+     * 根据商品id/评价等级查询商品的评价信息
+     *
+     * @param itemId
+     */
+    PagedGridResult queryItemComments(String itemId, Integer commentLevel, Integer page, Integer pageSize);
 }
