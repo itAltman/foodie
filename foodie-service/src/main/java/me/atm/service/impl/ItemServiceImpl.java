@@ -9,12 +9,12 @@ import me.atm.mapper.*;
 import me.atm.pojo.*;
 import me.atm.pojo.vo.CommentLevelCountsVO;
 import me.atm.pojo.vo.ItemCommentVO;
+import me.atm.pojo.vo.SearchItemsVO;
 import me.atm.service.ItemService;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,9 @@ import java.util.Map;
 public class ItemServiceImpl implements ItemService {
     @Resource
     private ItemsMapper itemsMapper;
+
+    @Resource
+    private ItemsMapperCustom itemsMapperCustom;
 
     @Resource
     private ItemsImgMapper itemsImgMapper;
@@ -100,6 +103,31 @@ public class ItemServiceImpl implements ItemService {
         List<ItemCommentVO> itemCommentVOS = itemsCommentsMapper.queryItemComments(map);
         itemCommentVOS.forEach(vo -> DesensitizationUtil.commonDisplay(vo.getNickname()));
         return setterPagedGrid(itemCommentVOS, page);
+    }
+
+    @Override
+    public PagedGridResult searchItemsByKeywords(String keywords, String sort, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("keywords", keywords);
+        map.put("sort", sort);
+        /**
+         * page: 第几页
+         * pageSize: 每页显示条数
+         */
+        PageHelper.startPage(page, pageSize);
+        List<SearchItemsVO> searchItemsVOS = itemsMapperCustom.searchItemsByKeywords(map);
+        return setterPagedGrid(searchItemsVOS, page);
+    }
+
+    @Override
+    public PagedGridResult searchItemsByThirdCat(Integer catId, String sort, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("catId", catId);
+        map.put("sort", sort);
+
+        PageHelper.startPage(page, pageSize);
+        List<SearchItemsVO> searchItemsVOS = itemsMapperCustom.searchItemsByThirdCat(map);
+        return setterPagedGrid(searchItemsVOS, page);
     }
 
     private PagedGridResult setterPagedGrid(List<?> list, Integer page) {
