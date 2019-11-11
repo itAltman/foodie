@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.atm.mapper.ItemsMapperCustom">
+
+    <select id="searchItemsByKeywords" resultType="me.atm.pojo.vo.SearchItemsVO">
+        SELECT
+            i.id AS itemId,
+            i.item_name AS itemName,
+            i.sell_counts AS sellCounts,
+            ii.url AS imgUrl,
+            itemSpec.price_discount AS price
+        FROM
+            items i
+        LEFT JOIN
+            items_img ii
+        ON
+            i.id = ii.item_id
+        LEFT JOIN
+            (SELECT item_id, MIN(price_discount) AS price_discount FROM items_spec GROUP BY item_id) itemSpec
+        ON
+            i.id = itemSpec.item_id
+        WHERE
+            ii.is_main=1
+        <if test="paramsMap.keywords != null and paramsMap.keywords != '' ">
+            AND i.item_name LIKE '%${paramsMap.keywords}%'
+        </if>
+        ORDER BY
+        <choose>
+            <!-- 如果需要比较字符串，不能用 'c'这样的形式，会报错 -->
+            <when test="paramsMap.sort == 'c'.toString()">
+                i.sell_counts DESC
+            </when>
+            <when test="paramsMap.sort == 'p'.toString()">
+                itemSpec.price_discount ASC
+            </when>
+            <otherwise>
+                i.item_name ASC
+            </otherwise>
+        </choose>
+    </select>
+    <select id="searchItemsByThirdCat" resultType="me.atm.pojo.vo.SearchItemsVO">
+        SELECT
+            i.id as itemId,
+            i.item_name as itemName,
+            i.sell_counts as sellCounts,
+            ii.url as imgUrl,
+            tempSpec.price_discount as price
+        FROM
+            items i
+        LEFT JOIN
+            items_img ii
+        ON
+            i.id = ii.item_id
+        LEFT JOIN
+            (SELECT item_id,MIN(price_discount) as price_discount from items_spec GROUP BY item_id) tempSpec
+        ON
+            i.id = tempSpec.item_id
+        WHERE
+            ii.is_main = 1
+        AND
+            i.cat_id = #{paramsMap.catId}
+        ORDER BY
+        <choose>
+            <when test=" paramsMap.sort == 'c'.toString() ">
+                i.sell_counts DESC
+            </when>
+            <when test=" paramsMap.sort == 'p'.toString() ">
+                tempSpec.price_discount ASC
+            </when>
+            <otherwise>
+                i.item_name ASC
+            </otherwise>
+        </choose>
+    </select>
+    <select id="queryItemsBySpecIds" resultType="me.atm.pojo.vo.ShopcartVO">
+        SELECT
+            item.id AS itemId,
+            item.item_name AS itemName,
+            itemImg.url AS itemImgUrl,
+            itemSpec.id AS specId,
+            itemSpec.`name` AS specName,
+            itemSpec.price_discount AS priceDiscount,
+            itemSpec.price_normal AS priceNormal
+        FROM
+            items item
+        LEFT JOIN
+            items_img itemImg
+        ON
+            item.id = itemImg.item_id
+        LEFT JOIN
+            items_spec itemSpec
+        ON
+            item.id = itemSpec.item_id
+        WHERE
+            itemImg.is_main = 1
+        AND
+            itemSpec.id IN
+            <foreach collection="itemSpecIdList" index="index" item="itemSpec" open="(" separator="," close=")">
+                 #{itemSpec}
+            </foreach>
+    </select>
+</mapper>
