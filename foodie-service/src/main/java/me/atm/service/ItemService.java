@@ -7,6 +7,7 @@ import me.atm.pojo.ItemsParam;
 import me.atm.pojo.ItemsSpec;
 import me.atm.pojo.vo.CommentLevelCountsVO;
 import me.atm.pojo.vo.ItemCommentVO;
+import me.atm.pojo.vo.ShopcartVO;
 
 import java.util.List;
 
@@ -82,4 +83,12 @@ public interface ItemService {
      * @return
      */
     PagedGridResult searchItemsByThirdCat(Integer catId, String sort, Integer page, Integer pageSize);
+
+    /**
+     * 根据商品规格ids查找最新的商品数据
+     *
+     * @param itemSpecIds
+     * @return
+     */
+    List<ShopcartVO> queryItemsBySpecIds(String itemSpecIds);
 }

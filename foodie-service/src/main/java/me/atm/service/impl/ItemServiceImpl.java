@@ -2,6 +2,7 @@ package me.atm.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Splitter;
 import me.atm.common.enums.CommentLevelEnum;
 import me.atm.common.utils.DesensitizationUtil;
 import me.atm.common.utils.PagedGridResult;
@@ -10,6 +11,7 @@ import me.atm.pojo.*;
 import me.atm.pojo.vo.CommentLevelCountsVO;
 import me.atm.pojo.vo.ItemCommentVO;
 import me.atm.pojo.vo.SearchItemsVO;
+import me.atm.pojo.vo.ShopcartVO;
 import me.atm.service.ItemService;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -128,6 +130,12 @@ public class ItemServiceImpl implements ItemService {
         PageHelper.startPage(page, pageSize);
         List<SearchItemsVO> searchItemsVOS = itemsMapperCustom.searchItemsByThirdCat(map);
         return setterPagedGrid(searchItemsVOS, page);
+    }
+
+    @Override
+    public List<ShopcartVO> queryItemsBySpecIds(String itemSpecIds) {
+        List<String> itemSpecIdList = Splitter.on(",").splitToList(itemSpecIds);
+        return itemsMapperCustom.queryItemsBySpecIds(itemSpecIdList);
     }
 
     private PagedGridResult setterPagedGrid(List<?> list, Integer page) {

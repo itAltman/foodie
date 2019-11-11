@@ -72,4 +72,31 @@
             </otherwise>
         </choose>
     </select>
+    <select id="queryItemsBySpecIds" resultType="me.atm.pojo.vo.ShopcartVO">
+        SELECT
+            item.id AS itemId,
+            item.item_name AS itemName,
+            itemImg.url AS itemImgUrl,
+            itemSpec.id AS specId,
+            itemSpec.`name` AS specName,
+            itemSpec.price_discount AS priceDiscount,
+            itemSpec.price_normal AS priceNormal
+        FROM
+            items item
+        LEFT JOIN
+            items_img itemImg
+        ON
+            item.id = itemImg.item_id
+        LEFT JOIN
+            items_spec itemSpec
+        ON
+            item.id = itemSpec.item_id
+        WHERE
+            itemImg.is_main = 1
+        AND
+            itemSpec.id IN
+            <foreach collection="itemSpecIdList" index="index" item="itemSpec" open="(" separator="," close=")">
+                 #{itemSpec}
+            </foreach>
+    </select>
 </mapper>
