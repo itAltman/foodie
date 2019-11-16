@@ -25,7 +25,7 @@ public interface OrderService {
     String createOrder(SubmitOrderBO submitOrderBo);
 
     /**
-     * 创建订单
+     * 查询订单状态
      *
      * @param orderId : 订单id
      * @return 订单状态对象
@@ -33,4 +33,12 @@ public interface OrderService {
      * @date 2019-11-16
      */
     OrderStatus queryOrderStatusInfo(String orderId);
+
+    /**
+     * 修改订单状态
+     *
+     * @param orderId
+     * @param orderStatus
+     */
+    void updateOrderStatus(String orderId, Integer orderStatus);
 }
