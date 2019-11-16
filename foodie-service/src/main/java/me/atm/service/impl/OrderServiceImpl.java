@@ -128,6 +128,12 @@ public class OrderServiceImpl implements OrderService {
         return orderId;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public OrderStatus queryOrderStatusInfo(String orderId) {
+        return orderStatusMapper.selectByPrimaryKey(orderId);
+    }
+
     public static void main(String[] args) {
         String itemSpecIds = "1,2,3";
         List<String> strings = Splitter.on(",").splitToList(itemSpecIds);
