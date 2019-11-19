@@ -27,5 +27,5 @@ public interface CenterUserService {
      * @param faceUrl
      * @return
      */
-//    Users updateUserFace(String userId, String faceUrl);
+    Users updateUserFace(String userId, String faceUrl);
 }
