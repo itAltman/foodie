@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Api(value = "用户信息接口", tags = {"用户信息相关接口"})
+@Api(value = "用户信息接口", tags = {"用户信息-个人信息相关接口"})
 @RestController
 @RequestMapping("/userInfo")
 public class CenterUserController {

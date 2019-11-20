@@ -2,6 +2,7 @@ package me.atm.foodie.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import me.atm.common.enums.OrderStatusEnum;
 import me.atm.common.utils.JsonResult;
 import me.atm.pojo.OrderStatus;
@@ -53,7 +54,7 @@ public class OrderController {
 
     @ApiOperation(value = "通知订单支付", notes = "订单支付成功后，由支付中心调用此方法通知订单支付成功。（未对接支付中心需要手动调用）", httpMethod = "POST")
     @PostMapping("notifyMerchantOrderPaid")
-    public Integer notifyMerchantOrderPaid(String merchantOrderId) {
+    public Integer notifyMerchantOrderPaid(@ApiParam(value = "订单编号") @RequestParam String merchantOrderId) {
         orderService.updateOrderStatus(merchantOrderId, OrderStatusEnum.WAIT_DELIVER.type);
         return HttpStatus.OK.value();
     }
