@@ -7,6 +7,7 @@ import me.atm.common.utils.JsonResult;
 import me.atm.common.utils.PagedGridResult;
 import me.atm.foodie.controller.BaseController;
 import me.atm.pojo.Orders;
+import me.atm.pojo.vo.OrderStatusCountsVO;
 import me.atm.service.center.MyOrdersService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -105,16 +106,39 @@ public class MyOrdersController extends BaseController {
         return JsonResult.ok();
     }
 
-    /**
-     * 用于验证用户和订单是否有关联关系，避免非法用户调用
-     *
-     * @return
-     */
-    private JsonResult checkUserOrder(String userId, String orderId) {
-        Orders order = myOrdersService.queryMyOrder(userId, orderId);
-        if (order == null) {
-            return JsonResult.errorMsg("订单不存在！");
+    @ApiOperation(value = "用户中心首页我的订单每种状态的数量", notes = "用户中心首页我的订单每种状态的数量（待付款、待发货、待收货、待评价）", httpMethod = "POST")
+    @PostMapping("/statusCounts")
+    public JsonResult statusCounts(
+            @ApiParam(name = "userId", value = "用户id", required = true)
+            @RequestParam String userId) {
+        OrderStatusCountsVO vo = myOrdersService.queryMyOrderStatusCounts(userId);
+        return JsonResult.ok(vo);
+    }
+
+    @ApiOperation(value = "查询订单动向", notes = "查询订单动向", httpMethod = "POST")
+    @PostMapping("/trend")
+    public JsonResult trend(
+            @ApiParam(name = "userId", value = "用户id", required = true)
+            @RequestParam String userId,
+            @ApiParam(name = "page", value = "查询下一页的第几页", required = false)
+            @RequestParam Integer page,
+            @ApiParam(name = "pageSize", value = "分页的每一页显示的条数", required = false)
+            @RequestParam Integer pageSize) {
+
+        if (StringUtils.isBlank(userId)) {
+            return JsonResult.errorMsg(null);
         }
-        return JsonResult.ok();
+        if (page == null) {
+            page = 1;
+        }
+        if (pageSize == null) {
+            pageSize = COMMON_PAGE_SIZE;
+        }
+
+        PagedGridResult grid = myOrdersService.getOrdersTrend(userId,
+                page,
+                pageSize);
+
+        return JsonResult.ok(grid);
     }
 }

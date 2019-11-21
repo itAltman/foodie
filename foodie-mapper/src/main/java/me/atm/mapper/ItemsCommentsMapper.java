@@ -8,6 +8,4 @@ import java.util.List;
 import java.util.Map;
 
 public interface ItemsCommentsMapper extends MyMapper<ItemsComments> {
-
-    List<ItemCommentVO> queryItemComments(Map<String, Object> map);
 }

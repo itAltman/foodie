@@ -26,23 +26,23 @@
 
     <select id="queryMyOrders" resultMap="myOrdersMap">
         SELECT
-            o.id AS orderId,
-            o.created_time AS createdTime,
-            o.pay_method AS payMethod,
-            o.real_pay_amount as realPayAmount,
-            o.post_amount AS postAmount,
-            o.is_comment AS isComment,
-            os.order_status AS orderStatus
+        o.id AS orderId,
+        o.created_time AS createdTime,
+        o.pay_method AS payMethod,
+        o.real_pay_amount as realPayAmount,
+        o.post_amount AS postAmount,
+        o.is_comment AS isComment,
+        os.order_status AS orderStatus
         FROM
-            orders o
+        orders o
         LEFT JOIN
-            order_status os
+        order_status os
         ON
-            o.id = os.order_id
+        o.id = os.order_id
         WHERE
-            o.user_id = #{paramsMap.userId}
+        o.user_id = #{paramsMap.userId}
         AND
-            o.is_delete = 0
+        o.is_delete = 0
         <if test="paramsMap.orderStatus != null">
             AND os.order_status = #{paramsMap.orderStatus}
         </if>
@@ -63,5 +63,50 @@
             order_id = #{orderId}
     </select>
 
+    <select id="getMyOrderStatusCount" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        orders o
+        LEFT JOIN
+        order_status os
+        on
+        o.id = os.order_id
+        WHERE
+        o.user_id = #{userId}
+        AND
+        os.order_status = #{orderStatus}
+        <if test="isComment != null">
+            and o.is_comment = #{isComment}
+        </if>
+    </select>
+
+    <select id="getMyOrderTrend" resultType="me.atm.pojo.OrderStatus">
+
+        SELECT
+            os.order_id as orderId,
+            os.order_status as orderStatus,
+            os.created_time as createdTime,
+            os.pay_time as payTime,
+            os.deliver_time as deliverTime,
+            os.success_time as successTime,
+            os.close_time as closeTime,
+            os.comment_time as commentTime
+        FROM
+          orders o
+        LEFT JOIN
+          order_status os
+        on
+          o.id = os.order_id
+        WHERE
+          o.is_delete = 0
+        AND
+          o.user_id = #{userId}
+        AND
+          os.order_status in (20, 30, 40)
+        ORDER BY
+          os.order_id
+        DESC
+    </select>
 
 </mapper>

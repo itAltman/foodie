@@ -2,6 +2,7 @@ package me.atm.service.center;
 
 import me.atm.common.utils.PagedGridResult;
 import me.atm.pojo.Orders;
+import me.atm.pojo.vo.OrderStatusCountsVO;
 
 public interface MyOrdersService {
 
@@ -48,4 +49,24 @@ public interface MyOrdersService {
      * @return
      */
     boolean deleteOrder(String userId, String orderId);
+
+    /**
+     * 个人中心4种订单状态的数量
+     *
+     * @param userId :
+     * @return
+     * @date: 2019-11-21
+     */
+    OrderStatusCountsVO queryMyOrderStatusCounts(String userId);
+
+    /**
+     * 获得分页的订单动向
+     *
+     * @param userId   :
+     * @param page     :
+     * @param pageSize :
+     * @return
+     * @date: 2019-11-21
+     */
+    PagedGridResult getOrdersTrend(String userId, Integer page, Integer pageSize);
 }

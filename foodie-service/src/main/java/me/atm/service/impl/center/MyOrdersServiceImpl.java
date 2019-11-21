@@ -10,6 +10,7 @@ import me.atm.mapper.OrdersMapperCustom;
 import me.atm.pojo.OrderStatus;
 import me.atm.pojo.Orders;
 import me.atm.pojo.vo.MyOrdersVO;
+import me.atm.pojo.vo.OrderStatusCountsVO;
 import me.atm.service.center.MyOrdersService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -115,6 +116,45 @@ public class MyOrdersServiceImpl extends BaseService implements MyOrdersService 
         int result = ordersMapper.updateByExampleSelective(updateOrder, example);
 
         return result == 1 ? true : false;
+    }
+
+    @Override
+    public OrderStatusCountsVO queryMyOrderStatusCounts(String userId) {
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("orderStatus",OrderStatusEnum.WAIT_PAY.type);
+        int waitPayCount = ordersMapperCustom.getMyOrderStatusCount(map);
+
+        map.put("orderStatus", OrderStatusEnum.WAIT_DELIVER.type);
+        int waitDeliverCounts = ordersMapperCustom.getMyOrderStatusCount(map);
+
+        map.put("orderStatus", OrderStatusEnum.WAIT_RECEIVE.type);
+        int waitReceiveCounts = ordersMapperCustom.getMyOrderStatusCount(map);
+
+        map.put("orderStatus", OrderStatusEnum.SUCCESS.type);
+        map.put("isComment", YesOrNoEnum.NO.type);
+        int waitCommentCounts = ordersMapperCustom.getMyOrderStatusCount(map);
+
+        OrderStatusCountsVO vo = OrderStatusCountsVO.builder()
+                .waitPayCounts(waitPayCount)
+                .waitDeliverCounts(waitDeliverCounts)
+                .waitReceiveCounts(waitReceiveCounts)
+                .waitCommentCounts(waitCommentCounts)
+                .build();
+
+        return vo;
+    }
+
+    @Override
+    public PagedGridResult getOrdersTrend(String userId, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+
+        PageHelper.startPage(page, pageSize);
+        List<OrderStatus> list = ordersMapperCustom.getMyOrderTrend(map);
+
+        return setterPagedGrid(list, page);
     }
 
 

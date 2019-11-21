@@ -48,6 +48,9 @@ public class ItemServiceImpl implements ItemService {
     @Resource
     private ItemsCommentsMapper itemsCommentsMapper;
 
+    @Resource
+    private ItemsCommentsMapperCustom itemsCommentsMapperCustom;
+
     @Override
     public Items queryItemById(String itemId) {
         return itemsMapper.selectByPrimaryKey(itemId);
@@ -105,7 +108,7 @@ public class ItemServiceImpl implements ItemService {
          * pageSize: 每页显示条数
          */
         PageHelper.startPage(page, pageSize);
-        List<ItemCommentVO> itemCommentVOS = itemsCommentsMapper.queryItemComments(map);
+        List<ItemCommentVO> itemCommentVOS = itemsCommentsMapperCustom.queryItemComments(map);
         itemCommentVOS.forEach(vo -> DesensitizationUtil.commonDisplay(vo.getNickname()));
         return setterPagedGrid(itemCommentVOS, page);
     }

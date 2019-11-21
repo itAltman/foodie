@@ -17,7 +17,7 @@ import javax.annotation.Resource;
  * @author Altman
  * @date 2019/11/16
  **/
-@Api(value = "订单模块", tags = {"订单模块相关接口"})
+@Api(value = "订单模块", tags = {"订单/支付模块相关接口"})
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
