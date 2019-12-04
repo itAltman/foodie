@@ -1,0 +1,36 @@
+############################################################
+#
+# web访问端口号  约定：80
+#
+############################################################
+server:
+  port: 8088
+
+############################################################
+#
+# 配置数据源信息
+#
+############################################################
+spring:
+  datasource:                                         # 数据源的相关配置
+    url: jdbc:mysql://localhost:3306/foodie-shop?useSSL=false&useUnicode=true&characterEncoding=UTF-8&autoReconnect=true
+    username: root
+    password: admin
+############################################################
+#
+# mybatis 配置
+#
+############################################################
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   # 控制台打印sql
+
+############################################################
+#
+# 自定义上传头像的属性
+#
+############################################################
+system:
+  face:
+    url: /Users/admin/Documents/test/
+    domain: http://localhost:8088/

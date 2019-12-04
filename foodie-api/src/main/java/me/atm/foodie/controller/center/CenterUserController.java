@@ -7,6 +7,7 @@ import me.atm.common.utils.CookieUtils;
 import me.atm.common.utils.DateUtils;
 import me.atm.common.utils.JsonResult;
 import me.atm.common.utils.JsonUtils;
+import me.atm.foodie.config.properties.UploadFaceFileProperties;
 import me.atm.pojo.Users;
 import me.atm.pojo.bo.center.CenterUserBO;
 import me.atm.service.center.CenterUserService;
@@ -17,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -30,8 +32,8 @@ import java.util.Map;
 @RequestMapping("/userInfo")
 public class CenterUserController {
 
-    private static final String SYSTEM_FACE_URL = "/Users/admin/Documents/test";
-    private static final String SYSTEM_FACE_DOMAIN = "http://localhost:8088/";
+    @Resource
+    private UploadFaceFileProperties uploadFaceFileProperties;
 
     @Autowired
     private CenterUserService centerUserService;
@@ -53,7 +55,7 @@ public class CenterUserController {
         String fileName = originalFilename.substring(0, originalFilename.lastIndexOf("."));
         String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
         // /Users/admin/Documents/test/1911064TAGPGNZ9P/xxx-20191119191440.png
-        String faceFilePath = SYSTEM_FACE_URL + File.separator + userId + File.separator + fileName + "-" + DateUtils.getCurrentDateString(DateUtils.DATE_PATTERN) + suffix;
+        String faceFilePath = uploadFaceFileProperties.getUrl() + userId + File.separator + fileName + "-" + DateUtils.getCurrentDateString(DateUtils.DATE_PATTERN) + suffix;
         File faceFile = new File(faceFilePath);
         if (faceFile.getParentFile() != null) {
             faceFile.getParentFile().mkdirs();
@@ -70,7 +72,7 @@ public class CenterUserController {
         }
 
         // 3. 更新数据库头像url http://localhost:8088/1911064TAGPGNZ9P/xxx-20191119191440.png
-        String url = SYSTEM_FACE_DOMAIN + userId + File.separator + fileName + "-" + DateUtils.getCurrentDateString(DateUtils.DATE_PATTERN) + suffix;
+        String url = uploadFaceFileProperties.getDomain() + userId + File.separator + fileName + "-" + DateUtils.getCurrentDateString(DateUtils.DATE_PATTERN) + suffix;
         Users userResult = centerUserService.updateUserFace(userId, url);
 
         // 4. 更新cookie信息

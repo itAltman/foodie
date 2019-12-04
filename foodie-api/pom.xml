@@ -11,6 +11,9 @@
 
     <artifactId>foodie-api</artifactId>
 
+    <!-- 打war包 [1] -->
+    <packaging>war</packaging>
+
     <dependencies>
         <!--
             api -> service -> mapper -> pojo -> common
