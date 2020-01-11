@@ -9,10 +9,10 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author Altman
  * @date 2019/12/03
  **/
-public class WarApplication extends SpringBootServletInitializer {
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        // 指向 Application 这个 springboot 的启动类
-        return builder.sources(Application.class);
-    }
-}
+//public class WarApplication extends SpringBootServletInitializer {
+//    @Override
+//    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+//        // 指向 Application 这个 springboot 的启动类
+//        return builder.sources(Application.class);
+//    }
+//}
