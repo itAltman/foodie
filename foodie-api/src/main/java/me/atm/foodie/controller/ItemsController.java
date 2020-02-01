@@ -117,7 +117,11 @@ public class ItemsController extends BaseController {
             pageSize = PAGE_SIZE;
         }
 
-        PagedGridResult grid = itemService.searchItemsByKeywords(keywords, sort, page, pageSize);
+        // 从 es 查询
+        PagedGridResult grid = itemService.searchItemsFromES(keywords, sort, page, pageSize);
+
+        // 从数据库查询
+//        PagedGridResult grid = itemService.searchItemsByKeywords(keywords, sort, page, pageSize);
 
         return JsonResult.ok(grid);
     }

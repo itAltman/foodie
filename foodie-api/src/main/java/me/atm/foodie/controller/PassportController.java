@@ -1,7 +1,5 @@
 package me.atm.foodie.controller;
 
-import java.util.Date;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import me.atm.common.utils.CookieUtils;
@@ -10,6 +8,7 @@ import me.atm.common.utils.JsonUtils;
 import me.atm.common.utils.MD5Utils;
 import me.atm.pojo.Users;
 import me.atm.pojo.bo.UserBO;
+import me.atm.pojo.vo.UsersVO;
 import me.atm.service.UsersService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @Api(value = "注册登录", tags = {"注册登录"})
 @RestController
 @RequestMapping("/passport")
-public class PassportController {
+public class PassportController extends BaseController {
 
     @Resource
     private UsersService usersService;
@@ -80,11 +79,11 @@ public class PassportController {
         // 5. 实现注册
         Users user = usersService.createUser(userBO);
 
-        // 6. 有一些是不能返回到前端的，比如密码等敏感信息
-        processFieldToNull(user);
+        // 6. 生成token信息并存储到 redis 中
+        UsersVO usersVO = convertUsersVO(user);
 
         // 7. 用户信息存到 cookie
-        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(user), true);
+        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(usersVO), true);
         return JsonResult.ok();
     }
 
@@ -105,11 +104,11 @@ public class PassportController {
             return JsonResult.errorMsg("用户名或密码错误，请检验之后重试！");
         }
 
-        // 3. 有一些是不能返回到前端的，比如密码等敏感信息
-        processFieldToNull(user);
+        // 3. 生成token信息并存储到 redis 中
+        UsersVO usersVO = convertUsersVO(user);
 
         // 4. 用户信息存到 cookie
-        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(user), true);
+        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(usersVO), true);
         return JsonResult.ok();
     }
 
@@ -125,7 +124,10 @@ public class PassportController {
         CookieUtils.deleteCookie(request, response, "user");
 
         // TODO 用户退出登录，需要清空购物车
+        CookieUtils.deleteCookie(request, response, FOODIE_SHOPCART);
+
         // TODO 分布式会话中需要清除用户数据
+        redisOperator.del(REDIS_USER_TOKEN + ":" + userId);
 
         return JsonResult.ok();
     }

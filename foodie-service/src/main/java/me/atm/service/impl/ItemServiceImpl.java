@@ -9,17 +9,36 @@ import me.atm.common.utils.DesensitizationUtil;
 import me.atm.common.utils.PagedGridResult;
 import me.atm.mapper.*;
 import me.atm.pojo.*;
+import me.atm.pojo.doc.ItemsDoc;
 import me.atm.pojo.vo.CommentLevelCountsVO;
 import me.atm.pojo.vo.ItemCommentVO;
 import me.atm.pojo.vo.SearchItemsVO;
 import me.atm.pojo.vo.ShopcartVO;
 import me.atm.service.ItemService;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.SearchResultMapper;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +49,11 @@ import java.util.Map;
  **/
 @Service
 public class ItemServiceImpl implements ItemService {
+
+    // ES 模板类
+    @Resource
+    private ElasticsearchTemplate elasticsearchTemplate;
+
     @Resource
     private ItemsMapper itemsMapper;
 
@@ -186,6 +210,66 @@ public class ItemServiceImpl implements ItemService {
         if (result != 1) {
             throw new RuntimeException("订单创建失败，原因：库存不足!");
         }
+    }
+
+    @Override
+    public PagedGridResult searchItemsFromES(String keywords, String sort, Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of((page-1), pageSize);
+        String itemNameFiled = "itemName";
+
+        SortBuilder sortBuilder = null;
+        if (sort.equals("c")) {
+            sortBuilder = new FieldSortBuilder("sellCounts")
+                    .order(SortOrder.DESC);
+        } else if (sort.equals("p")) {
+            sortBuilder = new FieldSortBuilder("price")
+                    .order(SortOrder.ASC);
+        } else {
+            sortBuilder = new FieldSortBuilder("itemName.keyword")
+                    .order(SortOrder.ASC);
+        }
+
+        SearchQuery query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchQuery(itemNameFiled, keywords))
+                .withHighlightFields(new HighlightBuilder.Field(itemNameFiled))
+                .withPageable(pageable)
+                .withSort(sortBuilder)
+                .build();
+        AggregatedPage<ItemsDoc> itemsDocs = elasticsearchTemplate.queryForPage(query, ItemsDoc.class, new SearchResultMapper() {
+            @Override
+            public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+                List<ItemsDoc> itemHighLightList = new ArrayList<>();
+                SearchHits hits = searchResponse.getHits();
+                for (SearchHit hit : hits) {
+                    HighlightField highlightField = hit.getHighlightFields().get(itemNameFiled);
+                    String itemName = highlightField.getFragments()[0].toString();
+
+                    String itemId = (String) hit.getSourceAsMap().get("itemId");
+                    String imgUrl = (String) hit.getSourceAsMap().get("imgUrl");
+                    Integer price = (Integer) hit.getSourceAsMap().get("price");
+                    Integer sellCounts = (Integer) hit.getSourceAsMap().get("sellCounts");
+
+                    itemHighLightList.add(
+                            ItemsDoc.builder()
+                                    .itemId(itemId).itemName(itemName)
+                                    .imgUrl(imgUrl).price(price)
+                                    .sellCounts(sellCounts).build()
+                    );
+                }
+                return new AggregatedPageImpl<>(
+                        (List<T>) itemHighLightList,
+                        pageable,
+                        searchResponse.getHits().totalHits);
+            }
+        });
+
+        PagedGridResult gridResult = new PagedGridResult();
+        gridResult.setRows(itemsDocs.getContent());
+        gridResult.setPage(page);
+        gridResult.setTotal(itemsDocs.getTotalPages());
+        gridResult.setRecords(itemsDocs.getTotalElements());
+
+        return gridResult;
     }
 
     private PagedGridResult setterPagedGrid(List<?> list, Integer page) {

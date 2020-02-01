@@ -112,4 +112,15 @@ public interface ItemService {
      * @param buyCounts
      */
     void decreaseItemSpecStock(String specId, int buyCounts);
+
+    /**
+     * 根据关键词搜索商品列表 (从 ES 中查询)
+     *
+     * @param keywords
+     * @param sort
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    PagedGridResult searchItemsFromES(String keywords, String sort, Integer page, Integer pageSize);
 }

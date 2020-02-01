@@ -8,8 +8,10 @@ import me.atm.common.utils.DateUtils;
 import me.atm.common.utils.JsonResult;
 import me.atm.common.utils.JsonUtils;
 import me.atm.foodie.config.properties.UploadFaceFileProperties;
+import me.atm.foodie.controller.BaseController;
 import me.atm.pojo.Users;
 import me.atm.pojo.bo.center.CenterUserBO;
+import me.atm.pojo.vo.UsersVO;
 import me.atm.service.center.CenterUserService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,7 @@ import java.util.Map;
 @Api(value = "用户信息接口", tags = {"用户信息-个人信息相关接口"})
 @RestController
 @RequestMapping("/userInfo")
-public class CenterUserController {
+public class CenterUserController extends BaseController {
 
     @Resource
     private UploadFaceFileProperties uploadFaceFileProperties;
@@ -76,8 +78,8 @@ public class CenterUserController {
         Users userResult = centerUserService.updateUserFace(userId, url);
 
         // 4. 更新cookie信息
-        userResult = setNullProperty(userResult);
-        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(userResult), true);
+        UsersVO usersVO = convertUsersVO(userResult);
+        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(usersVO), true);
 
         return JsonResult.ok();
     }
@@ -100,12 +102,11 @@ public class CenterUserController {
         }
 
         Users userResult = centerUserService.updateUserInfo(userId, centerUserBO);
+        // 增加令牌token，会整合进redis，分布式会话
+        UsersVO usersVO = convertUsersVO(userResult);
 
-        userResult = setNullProperty(userResult);
         CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(userResult), true);
-
-        // TODO 后续要改，增加令牌token，会整合进redis，分布式会话
+                JsonUtils.objectToJson(usersVO), true);
 
         return JsonResult.ok();
     }
@@ -122,16 +123,6 @@ public class CenterUserController {
             map.put(errorField, errorMsg);
         }
         return map;
-    }
-
-    private Users setNullProperty(Users userResult) {
-        userResult.setPassword(null);
-        userResult.setMobile(null);
-        userResult.setEmail(null);
-        userResult.setCreatedTime(null);
-        userResult.setUpdatedTime(null);
-        userResult.setBirthday(null);
-        return userResult;
     }
 
 }

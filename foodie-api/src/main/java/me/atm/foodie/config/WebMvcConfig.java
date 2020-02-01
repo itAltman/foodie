@@ -1,7 +1,10 @@
 package me.atm.foodie.config;
 
 import me.atm.foodie.config.properties.UploadFaceFileProperties;
+import me.atm.foodie.interceptor.UserTokenInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -16,6 +19,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Resource
     private UploadFaceFileProperties uploadFaceFileProperties;
+
+    @Bean
+    public UserTokenInterceptor userTokenInterceptor() {
+        return new UserTokenInterceptor();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(userTokenInterceptor())
+                .addPathPatterns("/hello");
+    }
 
     // 实现静态资源的映射
     @Override
