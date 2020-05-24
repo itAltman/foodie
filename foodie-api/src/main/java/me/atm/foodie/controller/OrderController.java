@@ -4,14 +4,24 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import me.atm.common.enums.OrderStatusEnum;
+import me.atm.common.utils.CookieUtils;
 import me.atm.common.utils.JsonResult;
+import me.atm.common.utils.JsonUtils;
+import me.atm.common.utils.RedisOperator;
 import me.atm.pojo.OrderStatus;
+import me.atm.pojo.bo.ShopcartBO;
 import me.atm.pojo.bo.SubmitOrderBO;
+import me.atm.pojo.vo.OrderVO;
 import me.atm.service.OrderService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * @author Altman
@@ -20,7 +30,7 @@ import javax.annotation.Resource;
 @Api(value = "订单模块", tags = {"订单/支付模块相关接口"})
 @RestController
 @RequestMapping("/orders")
-public class OrderController {
+public class OrderController extends BaseController {
 
     /**
      * 使用定时任务关闭超期未支付订单，会存在的弊端：
@@ -40,13 +50,37 @@ public class OrderController {
     @Resource
     private OrderService orderService;
 
+    @Autowired
+    private RedisOperator redisOperator;
+
     @ApiOperation(value = "创建订单", notes = "提交订单按钮触发", httpMethod = "POST")
     @PostMapping("create")
-    public JsonResult createOrders(@RequestBody SubmitOrderBO submitOrderBo) {
-        // 1. 创建订单
-        String orderId = orderService.createOrder(submitOrderBo);
+    public JsonResult createOrders(@RequestBody SubmitOrderBO submitOrderBo, HttpServletRequest request, HttpServletResponse response) {
 
-        // TODO 2. 创建成功之后清空redis中购物车
+        // 从缓存中获取购物车列表
+        String shopcartJson = redisOperator.get(FOODIE_SHOPCART + ":" + submitOrderBo.getUserId());
+        if (StringUtils.isBlank(shopcartJson)) {
+            return JsonResult.errorMsg("购物数据不正确");
+        }
+        List<ShopcartBO> shopcartList = JsonUtils.jsonToList(shopcartJson, ShopcartBO.class);
+
+        // 1. 创建订单
+        OrderVO orderVO = orderService.createOrder(shopcartList, submitOrderBo);
+        String orderId = orderVO.getOrderId();
+
+
+        // 2. 创建订单以后，移除购物车中已结算（已提交）的商品
+        /**
+         * 1001
+         * 2002 -> 用户购买
+         * 3003 -> 用户购买
+         * 4004
+         */
+        // 清理覆盖现有的redis汇总的购物数据
+        shopcartList.removeAll(orderVO.getToBeRemovedShopcatdList());
+        redisOperator.set(FOODIE_SHOPCART + ":" + submitOrderBo.getUserId(), JsonUtils.objectToJson(shopcartList));
+        // 整合redis之后，完善购物车中的已结算商品清除，并且同步到前端的cookie
+        CookieUtils.setCookie(request, response, FOODIE_SHOPCART, JsonUtils.objectToJson(shopcartList), true);
 
         // 3. 调用支付中心进行支付。我这里就不进行支付中心的对接了，因为没有企业资质。
         return JsonResult.ok(orderId);

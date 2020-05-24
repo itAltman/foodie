@@ -2,8 +2,10 @@ package me.atm.service;
 
 import me.atm.common.utils.PagedGridResult;
 import me.atm.pojo.*;
+import me.atm.pojo.bo.ShopcartBO;
 import me.atm.pojo.bo.SubmitOrderBO;
 import me.atm.pojo.vo.CommentLevelCountsVO;
+import me.atm.pojo.vo.OrderVO;
 import me.atm.pojo.vo.ShopcartVO;
 
 import java.util.List;
@@ -22,7 +24,7 @@ public interface OrderService {
      * @author Altman
      * @date 2019-11-16
      */
-    String createOrder(SubmitOrderBO submitOrderBo);
+    OrderVO createOrder(List<ShopcartBO> shopcartList, SubmitOrderBO submitOrderBo);
 
     /**
      * 查询订单状态
