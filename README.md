@@ -58,3 +58,8 @@ swagger文档：http://47.99.55.188:8088/foodie-api/doc.html
 - [x] 订单管理
 - [x] 评价管理
 - [x] 个人中心订单状态数量
+
+
+# 接入应用监控Skywalking
+操作说明
+https://www.yuque.com/docs/share/eab56147-3475-48ef-ad3a-21d1d87c07ad?#

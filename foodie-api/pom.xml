@@ -12,7 +12,7 @@
     <artifactId>foodie-api</artifactId>
 
     <!-- 打war包 [1] -->
-    <packaging>war</packaging>
+<!--    <packaging>war</packaging>-->
 
     <dependencies>
         <!--
