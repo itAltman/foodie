@@ -26,7 +26,7 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+//import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
@@ -51,8 +51,8 @@ import java.util.Map;
 public class ItemServiceImpl implements ItemService {
 
     // ES 模板类
-    @Resource
-    private ElasticsearchTemplate elasticsearchTemplate;
+//    @Resource
+//    private ElasticsearchTemplate elasticsearchTemplate;
 
     @Resource
     private ItemsMapper itemsMapper;
@@ -214,60 +214,60 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public PagedGridResult searchItemsFromES(String keywords, String sort, Integer page, Integer pageSize) {
-        Pageable pageable = PageRequest.of((page-1), pageSize);
-        String itemNameFiled = "itemName";
-
-        SortBuilder sortBuilder = null;
-        if (sort.equals("c")) {
-            sortBuilder = new FieldSortBuilder("sellCounts")
-                    .order(SortOrder.DESC);
-        } else if (sort.equals("p")) {
-            sortBuilder = new FieldSortBuilder("price")
-                    .order(SortOrder.ASC);
-        } else {
-            sortBuilder = new FieldSortBuilder("itemName.keyword")
-                    .order(SortOrder.ASC);
-        }
-
-        SearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.matchQuery(itemNameFiled, keywords))
-                .withHighlightFields(new HighlightBuilder.Field(itemNameFiled))
-                .withPageable(pageable)
-                .withSort(sortBuilder)
-                .build();
-        AggregatedPage<ItemsDoc> itemsDocs = elasticsearchTemplate.queryForPage(query, ItemsDoc.class, new SearchResultMapper() {
-            @Override
-            public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
-                List<ItemsDoc> itemHighLightList = new ArrayList<>();
-                SearchHits hits = searchResponse.getHits();
-                for (SearchHit hit : hits) {
-                    HighlightField highlightField = hit.getHighlightFields().get(itemNameFiled);
-                    String itemName = highlightField.getFragments()[0].toString();
-
-                    String itemId = (String) hit.getSourceAsMap().get("itemId");
-                    String imgUrl = (String) hit.getSourceAsMap().get("imgUrl");
-                    Integer price = (Integer) hit.getSourceAsMap().get("price");
-                    Integer sellCounts = (Integer) hit.getSourceAsMap().get("sellCounts");
-
-                    itemHighLightList.add(
-                            ItemsDoc.builder()
-                                    .itemId(itemId).itemName(itemName)
-                                    .imgUrl(imgUrl).price(price)
-                                    .sellCounts(sellCounts).build()
-                    );
-                }
-                return new AggregatedPageImpl<>(
-                        (List<T>) itemHighLightList,
-                        pageable,
-                        searchResponse.getHits().totalHits);
-            }
-        });
+//        Pageable pageable = PageRequest.of((page-1), pageSize);
+//        String itemNameFiled = "itemName";
+//
+//        SortBuilder sortBuilder = null;
+//        if (sort.equals("c")) {
+//            sortBuilder = new FieldSortBuilder("sellCounts")
+//                    .order(SortOrder.DESC);
+//        } else if (sort.equals("p")) {
+//            sortBuilder = new FieldSortBuilder("price")
+//                    .order(SortOrder.ASC);
+//        } else {
+//            sortBuilder = new FieldSortBuilder("itemName.keyword")
+//                    .order(SortOrder.ASC);
+//        }
+//
+//        SearchQuery query = new NativeSearchQueryBuilder()
+//                .withQuery(QueryBuilders.matchQuery(itemNameFiled, keywords))
+//                .withHighlightFields(new HighlightBuilder.Field(itemNameFiled))
+//                .withPageable(pageable)
+//                .withSort(sortBuilder)
+//                .build();
+//        AggregatedPage<ItemsDoc> itemsDocs = elasticsearchTemplate.queryForPage(query, ItemsDoc.class, new SearchResultMapper() {
+//            @Override
+//            public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+//                List<ItemsDoc> itemHighLightList = new ArrayList<>();
+//                SearchHits hits = searchResponse.getHits();
+//                for (SearchHit hit : hits) {
+//                    HighlightField highlightField = hit.getHighlightFields().get(itemNameFiled);
+//                    String itemName = highlightField.getFragments()[0].toString();
+//
+//                    String itemId = (String) hit.getSourceAsMap().get("itemId");
+//                    String imgUrl = (String) hit.getSourceAsMap().get("imgUrl");
+//                    Integer price = (Integer) hit.getSourceAsMap().get("price");
+//                    Integer sellCounts = (Integer) hit.getSourceAsMap().get("sellCounts");
+//
+//                    itemHighLightList.add(
+//                            ItemsDoc.builder()
+//                                    .itemId(itemId).itemName(itemName)
+//                                    .imgUrl(imgUrl).price(price)
+//                                    .sellCounts(sellCounts).build()
+//                    );
+//                }
+//                return new AggregatedPageImpl<>(
+//                        (List<T>) itemHighLightList,
+//                        pageable,
+//                        searchResponse.getHits().totalHits);
+//            }
+//        });
 
         PagedGridResult gridResult = new PagedGridResult();
-        gridResult.setRows(itemsDocs.getContent());
-        gridResult.setPage(page);
-        gridResult.setTotal(itemsDocs.getTotalPages());
-        gridResult.setRecords(itemsDocs.getTotalElements());
+//        gridResult.setRows(itemsDocs.getContent());
+//        gridResult.setPage(page);
+//        gridResult.setTotal(itemsDocs.getTotalPages());
+//        gridResult.setRecords(itemsDocs.getTotalElements());
 
         return gridResult;
     }
