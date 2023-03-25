@@ -4,12 +4,13 @@ B2C电商后端单体项目实现。
 ## 环境
 JDK:1.8  
 MySQL:5.6
-> sql执行文件：`foodie-shop-dev.sql`。
-
 Redis:6.0  
 
 ## 启动
-springBoot Jar包方式启动
+- 1、运行 MySQL。sql执行文件：`foodie-shop-dev.sql`。
+- 2、运行 Redis 
+- 3、SpringBoot Jar包方式启动
+
 swagger文档：
 http://localhost:8088/doc.html
 
